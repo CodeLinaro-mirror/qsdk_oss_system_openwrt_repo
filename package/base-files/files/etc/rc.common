@@ -8,6 +8,16 @@ initscript=$1
 action=${2:-help}
 shift 2
 
+get_mem_profile() {
+	[ -r /etc/mem-profile ] && tr -d '\n' < /etc/mem-profile
+}
+
+is_service_disabled() {
+	local profile="$(get_mem_profile)"
+	local svc="$1"
+	grep -qx "$svc" "/etc/mem-profile.d/$profile"
+}
+
 start() {
 	return 0
 }
@@ -135,6 +145,10 @@ extra_command "enabled" "Check if service is started on boot"
 	}
 
 	start() {
+		name="$(basename "${initscript}")"
+		name="${name##[SK][0-9][0-9]}"
+		is_service_disabled "$name" && exit 0
+
 		rc_procd start_service "$@"
 		if eval "type service_started" 2>/dev/null >/dev/null; then
 			service_started
