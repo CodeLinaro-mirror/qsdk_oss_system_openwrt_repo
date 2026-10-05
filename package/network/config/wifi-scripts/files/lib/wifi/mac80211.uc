@@ -40,11 +40,13 @@ function freq_to_channel(freq) {
 	return 0;
 }
 
-function radio_exists(path, macaddr, phy) {
+function radio_exists(path, macaddr, phy, radio) {
 	for (let name, s in config) {
 		if (s[".type"] != "wifi-device")
 			continue;
-		if (s.macaddr & lc(s.macaddr) == lc(macaddr))
+		if (radio != null && int(s.radio) != radio)
+			continue;
+		if (s.macaddr && lc(s.macaddr) == lc(macaddr))
 			return true;
 		if (s.phy == phy)
 			return true;
